@@ -19,8 +19,14 @@ type Rule interface {
 	Output(filepath string, content []byte) error
 }
 
+// Config configures how to rewrite.
+type Config struct {
+	// Dryrun is used whether to skip output.
+	Dryrun bool
+}
+
 // Run walks the rootPath and overwrites each file using the rule.
-func Run(rootPath string, rule Rule) {
+func Run(rootPath string, config Config, rule Rule) {
 	files := make(chan string)
 	var n sync.WaitGroup
 	n.Add(1)
@@ -38,7 +44,7 @@ loop:
 			if !ok {
 				break loop
 			}
-			err := rewrite(file, rule)
+			err := rewrite(file, config, rule)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "process: %v\n", err)
 			}
@@ -46,7 +52,7 @@ loop:
 	}
 }
 
-func rewrite(filepath string, rule Rule) error {
+func rewrite(filepath string, config Config, rule Rule) error {
 	content, err := ioutil.ReadFile(filepath)
 	if err != nil {
 		return err
@@ -68,10 +74,14 @@ func rewrite(filepath string, rule Rule) error {
 		return nil
 	}
 
-	err = rule.Output(filepath, newContent)
-	if err != nil {
-		return err
+	if config.Dryrun {
+		fmt.Printf("dryrun: %s\n", filepath)
+	} else {
+		err = rule.Output(filepath, newContent)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("overwrite: %s\n", filepath)
 	}
-	fmt.Printf("overwrite: %s\n", filepath)
 	return nil
 }

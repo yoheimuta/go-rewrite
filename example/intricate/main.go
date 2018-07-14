@@ -8,12 +8,16 @@ import (
 )
 
 var (
-	root = flag.String("root", ".", "root path")
+	root   = flag.String("root", ".", "root path")
+	dryrun = flag.Bool("dryrun", true, "the flag whether to overwrite")
 )
 
 func main() {
 	flag.Parse()
 
 	rule := &myrule.Rule{}
-	rewrite.Run(*root, rule)
+	config := rewrite.Config{
+		Dryrun: *dryrun,
+	}
+	rewrite.Run(*root, config, rule)
 }
