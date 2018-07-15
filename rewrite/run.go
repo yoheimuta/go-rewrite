@@ -15,13 +15,15 @@ func Run(rootPath string, rule Rule, opts ...ConfigOption) {
 	rewriter := newRewriter(config, logger)
 
 	files := make(chan string)
+	errs := make(chan error)
 	var n sync.WaitGroup
 	n.Add(1)
-	go walkdir.Run(rootPath, &n, files)
+	go walkdir.Run(rootPath, &n, files, errs)
 
 	go func() {
 		n.Wait()
 		close(files)
+		close(errs)
 	}()
 
 loop:
@@ -29,11 +31,18 @@ loop:
 		select {
 		case file, ok := <-files:
 			if !ok {
-				break loop
+				continue
 			}
 			err := rewriter.run(file, rule)
 			if err != nil {
-				logger.Errorf("rewrite: %v\n", err)
+				logger.Errorf("failed to rewrite %s: %v\n", file, err)
+			}
+		case err, ok := <-errs:
+			if !ok {
+				break loop
+			}
+			if err != nil {
+				logger.Errorf("%v\n", err)
 			}
 		}
 	}
