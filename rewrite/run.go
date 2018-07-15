@@ -1,32 +1,19 @@
 package rewrite
 
 import (
-	"fmt"
 	"io/ioutil"
-	"os"
 	"sync"
 
+	"github.com/yoheimuta/go-rewrite/internal/logger"
 	"github.com/yoheimuta/go-rewrite/internal/walkdir"
 )
 
-// Rule is the rule for rewrite.
-type Rule interface {
-	// Filter filters the file using the filepath.
-	Filter(filepath string) (isFilter bool, err error)
-	// Mapping maps the file content with new one.
-	Mapping(content []byte) (newContent []byte, isChanged bool, err error)
-	// Output writes the content to the file.
-	Output(filepath string, content []byte) error
-}
-
-// Config configures how to rewrite.
-type Config struct {
-	// Dryrun is used whether to skip output.
-	Dryrun bool
-}
-
 // Run walks the rootPath and overwrites each file using the rule.
-func Run(rootPath string, config Config, rule Rule) {
+func Run(rootPath string, rule Rule, opts ...ConfigOption) {
+	config := newConfig(opts...)
+	logger := logger.NewClient(config.infoFile, config.errFile)
+	rewriter := newRewriter(config, logger)
+
 	files := make(chan string)
 	var n sync.WaitGroup
 	n.Add(1)
@@ -44,15 +31,27 @@ loop:
 			if !ok {
 				break loop
 			}
-			err := rewrite(file, config, rule)
+			err := rewriter.run(file, rule)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "process: %v\n", err)
+				logger.Errorf("rewrite: %v\n", err)
 			}
 		}
 	}
 }
 
-func rewrite(filepath string, config Config, rule Rule) error {
+type rewriter struct {
+	c *Config
+	l *logger.Client
+}
+
+func newRewriter(config *Config, logger *logger.Client) *rewriter {
+	return &rewriter{
+		c: config,
+		l: logger,
+	}
+}
+
+func (r *rewriter) run(filepath string, rule Rule) error {
 	content, err := ioutil.ReadFile(filepath)
 	if err != nil {
 		return err
@@ -74,14 +73,14 @@ func rewrite(filepath string, config Config, rule Rule) error {
 		return nil
 	}
 
-	if config.Dryrun {
-		fmt.Printf("dryrun: %s\n", filepath)
+	if r.c.dryrun {
+		r.l.Infof("dryrun: %s\n", filepath)
 	} else {
 		err = rule.Output(filepath, newContent)
 		if err != nil {
 			return err
 		}
-		fmt.Printf("overwrite: %s\n", filepath)
+		r.l.Infof("overwrite: %s\n", filepath)
 	}
 	return nil
 }

@@ -16,8 +16,5 @@ func main() {
 	flag.Parse()
 
 	rule := &myrule.Rule{}
-	config := rewrite.Config{
-		Dryrun: *dryrun,
-	}
-	rewrite.Run(*root, config, rule)
+	rewrite.Run(*root, rule, rewrite.WithDryrun(*dryrun))
 }
