@@ -1,3 +1,10 @@
+## test/all runs all related tests.
+test/all: test/lint test
+
+## test runs `go test`
+test:
+	time go test -v -p 2 -count 1 -timeout 240s -race ./...
+
 ## test/lint runs linter
 test/lint:
 	# checks the coding style.
