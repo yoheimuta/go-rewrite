@@ -11,7 +11,7 @@ import (
 // Run walks the rootPath and overwrites each file using the rule.
 func Run(rootPath string, rule Rule, opts ...ConfigOption) {
 	config := newConfig(opts...)
-	logger := logger.NewClient(config.infoFile, config.errFile)
+	logger := logger.NewClient(config.infoWriter, config.errWriter)
 	rewriter := newRewriter(config, logger)
 
 	files := make(chan string)

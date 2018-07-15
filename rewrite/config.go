@@ -1,12 +1,15 @@
 package rewrite
 
-import "os"
+import (
+	"io"
+	"os"
+)
 
 // Config configures how to rewrite.
 type Config struct {
-	dryrun   bool
-	infoFile *os.File
-	errFile  *os.File
+	dryrun     bool
+	infoWriter io.Writer
+	errWriter  io.Writer
 }
 
 // ConfigOption is used to set the argument to the config.
@@ -20,27 +23,27 @@ func WithDryrun(dryrun bool) ConfigOption {
 	}
 }
 
-// WithInfoFile is the option to set infoFile.
-// infoFile is used to log the information. Default is os.Stdout.
-func WithInfoFile(infoFile *os.File) ConfigOption {
+// WithInfoWriter is the option to set infoWriter.
+// infoWriter is used to log the information. Default is os.Stdout.
+func WithInfoWriter(infoWriter io.Writer) ConfigOption {
 	return func(c *Config) {
-		c.infoFile = infoFile
+		c.infoWriter = infoWriter
 	}
 }
 
-// WithErrFile is the option to set errFile.
-// errFile is used to log the error. Default is os.Stderr.
-func WithErrFile(errFile *os.File) ConfigOption {
+// WithErrWriter is the option to set errWriter.
+// errWriter is used to log the error. Default is os.Stderr.
+func WithErrWriter(errWriter io.Writer) ConfigOption {
 	return func(c *Config) {
-		c.errFile = errFile
+		c.errWriter = errWriter
 	}
 }
 
 func newConfig(opts ...ConfigOption) *Config {
 	config := &Config{
-		dryrun:   false,
-		infoFile: os.Stdout,
-		errFile:  os.Stderr,
+		dryrun:     false,
+		infoWriter: os.Stdout,
+		errWriter:  os.Stderr,
 	}
 
 	for _, opt := range opts {

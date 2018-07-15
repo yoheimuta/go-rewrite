@@ -2,17 +2,17 @@ package logger
 
 import (
 	"fmt"
-	"os"
+	"io"
 )
 
 // Client is a logger.
 type Client struct {
-	infoFile *os.File
-	errFile  *os.File
+	infoFile io.Writer
+	errFile  io.Writer
 }
 
 // NewClient generates a new Client.
-func NewClient(infoFile, errFile *os.File) *Client {
+func NewClient(infoFile, errFile io.Writer) *Client {
 	return &Client{
 		infoFile: infoFile,
 		errFile:  errFile,
