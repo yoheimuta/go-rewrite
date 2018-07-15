@@ -4,9 +4,9 @@ go-rewrite is a thin go package which helps replacing files.
 
 You can use this package...
 
-- To focus on coding to filter files and overwriting a content.
-- To use an intricate searching instead of grep.
-- To use an intricate overwriting instead of sed.
+- To focus on coding to filter files and overwrite the file with a new content.
+- To search for files under intricate conditions instead of grep.
+- To overwrite the files under intricate conditions instead of sed.
 - To traverse a directory much faster with utilizing goroutines.
 
 ### Motivation
