@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 
-	"github.com/yoheimuta/go-rewrite/example/intricate/myrule"
+	"github.com/yoheimuta/go-rewrite/_example/intricate/myrule"
 	"github.com/yoheimuta/go-rewrite/rewrite"
 )
 

@@ -16,6 +16,10 @@ func containsMulti(b []byte, subslices [][]byte) bool {
 }
 
 func mappingRecursive(n int, lines [][]byte) [][]byte {
+	if n < 0 {
+		return lines
+	}
+
 	beforeLine := lines[n]
 	if bytes.Contains(beforeLine, []byte("/// ")) {
 		return lines
