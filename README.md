@@ -1,4 +1,4 @@
-# go-rewrite [![GoDoc](https://godoc.org/github.com/yoheimuta/go-rewrite/rewrite?status.svg)](https://godoc.org/github.com/yoheimuta/go-rewrite/rewrite)
+# go-rewrite [![GoDoc](https://godoc.org/github.com/yoheimuta/go-rewrite/rewrite?status.svg)](https://godoc.org/github.com/yoheimuta/go-rewrite/rewrite) [![Build Status](https://travis-ci.org/yoheimuta/go-rewrite.svg?branch=master)](https://travis-ci.org/yoheimuta/go-rewrite)
 
 go-rewrite is a thin go package which helps replacing files.
 
