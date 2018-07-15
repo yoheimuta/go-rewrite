@@ -1,10 +1,10 @@
-# go-rewrite [![GoDoc](https://godoc.org/github.com/yoheimuta/go-rewrite?status.svg)](https://godoc.org/github.com/yoheimuta/go-rewrite)
+# go-rewrite [![GoDoc](https://godoc.org/github.com/yoheimuta/go-rewrite/rewrite?status.svg)](https://godoc.org/github.com/yoheimuta/go-rewrite/rewrite)
 
 go-rewrite is a thin go package which helps replacing files.
 
 You can use this package...
 
-- To focus on searching and replacing coding.
+- To focus on coding to filter files and overwriting a content.
 - To use an intricate searching instead of grep.
 - To use an intricate overwriting instead of sed.
 - To traverse a directory much faster with utilizing goroutines.
@@ -24,12 +24,12 @@ go get github.com/yoheimuta/go-rewrite
 
 ### Usage
 
-See `_example` in detail.
+See `_example/simple` and `_example/intricate` in detail.
 
 ```go
 func main() {
 	rule := &myrule{}
-	rewrite.Run(".", rule, rewrite.WithDryrun(false))
+	rewrite.Run(".", rule)
 }
 
 type myrule struct{}
