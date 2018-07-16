@@ -26,26 +26,34 @@ func Run(rootPath string, rule Rule, opts ...ConfigOption) {
 		close(errs)
 	}()
 
-loop:
-	for {
-		select {
-		case file, ok := <-files:
-			if !ok {
-				continue
+	var w sync.WaitGroup
+	for i := 0; i < config.concurrency; i++ {
+		go func() {
+			w.Add(1)
+			defer w.Done()
+
+			for {
+				select {
+				case file, ok := <-files:
+					if !ok {
+						continue
+					}
+					err := rewriter.run(file, rule)
+					if err != nil {
+						logger.Errorf("failed to rewrite %s: %v\n", file, err)
+					}
+				case err, ok := <-errs:
+					if !ok {
+						return
+					}
+					if err != nil {
+						logger.Errorf("%v\n", err)
+					}
+				}
 			}
-			err := rewriter.run(file, rule)
-			if err != nil {
-				logger.Errorf("failed to rewrite %s: %v\n", file, err)
-			}
-		case err, ok := <-errs:
-			if !ok {
-				break loop
-			}
-			if err != nil {
-				logger.Errorf("%v\n", err)
-			}
-		}
+		}()
 	}
+	w.Wait()
 }
 
 type rewriter struct {
@@ -61,17 +69,17 @@ func newRewriter(config *Config, logger *logger.Client) *rewriter {
 }
 
 func (r *rewriter) run(filepath string, rule Rule) error {
-	content, err := ioutil.ReadFile(filepath)
-	if err != nil {
-		return err
-	}
-
 	ok, err := rule.Filter(filepath)
 	if err != nil {
 		return err
 	}
 	if !ok {
 		return nil
+	}
+
+	content, err := ioutil.ReadFile(filepath)
+	if err != nil {
+		return err
 	}
 
 	newContent, changed, err := rule.Mapping(content)

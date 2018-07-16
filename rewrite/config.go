@@ -7,9 +7,10 @@ import (
 
 // Config configures how to rewrite.
 type Config struct {
-	dryrun     bool
-	infoWriter io.Writer
-	errWriter  io.Writer
+	dryrun      bool
+	infoWriter  io.Writer
+	errWriter   io.Writer
+	concurrency int
 }
 
 // ConfigOption is used to set the argument to the config.
@@ -39,11 +40,20 @@ func WithErrWriter(errWriter io.Writer) ConfigOption {
 	}
 }
 
+// WithConcurrency is the option to set concurrency.
+// concurrency is used to determine the number of rewrites at the same time. Default is 10.
+func WithConcurrency(concurrency int) ConfigOption {
+	return func(c *Config) {
+		c.concurrency = concurrency
+	}
+}
+
 func newConfig(opts ...ConfigOption) *Config {
 	config := &Config{
-		dryrun:     false,
-		infoWriter: os.Stdout,
-		errWriter:  os.Stderr,
+		dryrun:      false,
+		infoWriter:  os.Stdout,
+		errWriter:   os.Stderr,
+		concurrency: 10,
 	}
 
 	for _, opt := range opts {
