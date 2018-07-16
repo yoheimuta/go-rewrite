@@ -5,7 +5,6 @@ import (
 	"reflect"
 	"sort"
 	"strings"
-	"sync"
 	"testing"
 
 	"github.com/yoheimuta/go-rewrite/internal/setting_test"
@@ -16,7 +15,6 @@ type rule struct {
 	filter  func(filepath string) (isFilter bool, err error)
 	mapping func(content []byte) (newContent []byte, isChanged bool, err error)
 
-	mu             sync.Mutex
 	outputFiles    []string
 	outputContents []string
 }
@@ -42,9 +40,6 @@ func (r *rule) Mapping(content []byte) ([]byte, bool, error) {
 }
 
 func (r *rule) Output(filepath string, content []byte) error {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
 	r.outputFiles = append(r.outputFiles, filepath)
 	r.outputContents = append(r.outputContents, string(content))
 	return nil
