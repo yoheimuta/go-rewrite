@@ -10,10 +10,6 @@ import (
 
 // Run walks the rootPath and overwrites each file using the rule.
 func Run(rootPath string, rule Rule, opts ...ConfigOption) {
-	config := newConfig(opts...)
-	logger := logger.NewClient(config.infoWriter, config.errWriter)
-	rewriter := newRewriter(config, logger)
-
 	files := make(chan string)
 	errs := make(chan error)
 	var n sync.WaitGroup
@@ -26,10 +22,13 @@ func Run(rootPath string, rule Rule, opts ...ConfigOption) {
 		close(errs)
 	}()
 
+	config := newConfig(opts...)
+	logger := logger.NewClient(config.infoWriter, config.errWriter)
+	rewriter := newRewriter(config, logger)
 	var w sync.WaitGroup
 	for i := 0; i < config.concurrency; i++ {
+		w.Add(1)
 		go func() {
-			w.Add(1)
 			defer w.Done()
 
 			for {
